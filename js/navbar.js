@@ -22,15 +22,13 @@ const adminPageBtn = document.getElementById("adminPage");
 const logoutBtn = document.getElementById("logout");
 const date = document.getElementById("date");
 const userDropDownMenu = document.getElementById("userDropDown");
+
 let loggedUsersId;
 let usersMenuLoaded = false;
-//NEW CODE 02.07.2019
 
 let displayedProject;
 let issuesOfTheProject = [];
 let reportersOfTheIssues;
-
-//END CODE 02.07.2019
 
 let usersData;
 let projectsData;
@@ -45,10 +43,14 @@ let todaysDate = new Date();
 
 isItAdmin()
 
-async function isItAdmin(){
-    let check = await localStorage.getItem("adminLogged");
-    let isItAdmin = await JSON.parse(check);
-    showAdminPage(isItAdmin);
+async function isItAdmin() {
+    try {
+        let check = await localStorage.getItem("adminLogged");
+        let isItAdmin = await JSON.parse(check);
+        showAdminPage(isItAdmin);
+    } catch (error) {
+        throw new Error("Something went wrong")
+    }
 }
 
 function showAdminPage(adminLogged){
@@ -60,25 +62,33 @@ function showAdminPage(adminLogged){
 getId();
 
 async function getId() {
-    let userid = await localStorage.getItem("loggedUser");
-    loggedUsersId = await JSON.parse(userid);
-    displayPicture(loggedUsersId);
+    try {
+        let userid = await localStorage.getItem("loggedUser");
+        loggedUsersId = await JSON.parse(userid);
+        displayPicture(loggedUsersId);
+    } catch (error) {
+        throw new Error("Something went wrong")
+    }
 }
 
 loadingMenus();
 
 //Loading menus in the navigation bar
 async function loadingMenus() {
-    usersData = await JSON.parse(localStorage.getItem("users"));
-    projectsData = await JSON.parse(localStorage.getItem("projects"))
-    issuesData = await JSON.parse(localStorage.getItem("issues"));
+    try {
+        usersData = await JSON.parse(localStorage.getItem("users"));
+        projectsData = await JSON.parse(localStorage.getItem("projects"))
+        issuesData = await JSON.parse(localStorage.getItem("issues"));
 
-    usersIssues(usersData);
-    displayUsers(usersData);
-    fillUsersMenu(usersData);
-    displayProjects(projectsData);
-    displayIssues(issuesData, usersAssignedIssues);
-    displayIssues(issuesData, usersWatchedIssues);
+        usersIssues(usersData);
+        displayUsers(usersData);
+        fillUsersMenu(usersData);
+        displayProjects(projectsData);
+        displayIssues(issuesData, usersAssignedIssues);
+        displayIssues(issuesData, usersWatchedIssues);
+    } catch (error) {
+        throw new Error("Something went wrong")
+    }
 }
 
 function displayPicture(id){
@@ -110,10 +120,11 @@ function setMinDay(minDate) {
 
 //Setting month format for the issue
 function formatDate(date, split){
-    debugger
+
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
+
     if(month < 9) {
         month = "0" + month;
     }
@@ -124,17 +135,6 @@ function formatDate(date, split){
     
     return day + split + month + split + year;
 }
-
-//Setting day format for the issue
-// function setDateFormatDay(data, split){
-//     debugger
-//     let dateFormat;
-//     if (data.getDate() < 10) {
-//         return dateFormat += split + "0" + data.getDate()
-//     } else {
-//         return dateFormat += split + "" + data.getDate().toString();
-//     }
-// }
 
 //Filling the dropdown menus from the navigation bar and the form
 function displayProjects(data) {
@@ -165,8 +165,7 @@ function displayUsers(data) {
     for (const user of data) {
         temp += `<option value=${user.id}>${user.firstName} ${user.lastName}</option>`;
     }
-
-
+    
     assigneeDropDown.innerHTML = temp;
 }
 
@@ -184,7 +183,6 @@ function fillUsersMenu(data) {
         let text = document.createTextNode(temp);
         newListItem.appendChild(text);
         userDropDownMenu.insertBefore(newListItem, userDropDownMenu.childNodes[0]);
-
         usersMenuLoaded = true;
     }
 }
@@ -195,21 +193,16 @@ function displayIssues(data, arr) {
     for (let index = 0; index < arr.length; index++) {
         for (const issue of data) {
             if (issue.id === arr[index]) {
-                // temp += `<a href="#">${issue.summary}</a>`
                 temp += `<a href="#" issueId = ${issue.id} projectId = ${issue.project}>${issue.summary}</a>`
             }
         }
 
     }
 
-    // if (temp === "") {
-    //     temp = ``
-    //     // temp = `<a href="#" style="pointer-events: none;">No issues</a>`
-    // }
-
     whichDropDownIssuesMenu(arr, temp);
 }
 
+//Sorts the issues for the dropdown menus
 function whichDropDownIssuesMenu(arr, temp) {
     if (arr === usersAssignedIssues) {
         return issuesDropDown.innerHTML = temp;
@@ -218,7 +211,6 @@ function whichDropDownIssuesMenu(arr, temp) {
     }
 }
 
-//NEW CODE 02.07.2019 ########################################################################################################################################
 //Finding the selected project from the dropdown menu
 function findTheProject(data, id){
     const project = data.find(x => x.id === id);
@@ -230,11 +222,6 @@ function findTheProject(data, id){
 function projetsBasicInfo(project) {
     let projectInfo = document.getElementById("projectInfo");
     projectInfo.innerHTML = ``;
-    // projectInfo.innerHTML = `<h1>${project.projectName}</h1>
-    //                          <h6>Organization : <b>${project.organization}</b></h6>
-    //                          <h6>Status: <b>${project.status}</b></h6>
-    //                          <h6>Due date: <b>${project.dueDate}</b></h6>
-    //                          <h6>Issues: <b>${project.issues.length}</b></h6>`
     projectInfo.innerHTML = `<h1>${project.projectName}</h1>
                              <table>
                                  <tbody>
@@ -325,8 +312,6 @@ function projectsIssues(issues, status) {
 
 }
 
-//END CODE 02.07.2019 ########################################################################################################################################
-
 //Home button
 homeBtn.addEventListener("click", () => {
     window.location.href = "main.html";
@@ -337,8 +322,6 @@ createBtn.addEventListener("click", () => {
     form.style.display = "block";
     background.style.filter = "blur(7px)";
     dashboard.style.filter = "blur(7px)";
-
-    //new code
     document.getElementById("projectsPage").classList.add("d-none");
     document.getElementById("g-container1").classList.add("d-none");
     document.getElementsByClassName("g-container2")[0].classList.add("d-none");
@@ -351,19 +334,17 @@ cancelBtn.addEventListener("click", () => {
     form.style.display = "none";
     background.style.filter = "";
     dashboard.style.filter = "";
-
-    //new code
     document.getElementById("g-container1").classList.remove("d-none");
+    document.getElementsByClassName("g-container2")[0].innerHTML = "";
+    document.getElementById("g-container1").style.display = "block";
     document.getElementsByClassName("g-container2")[0].classList.remove("d-none");
     searchResults.classList.add("d-none");
-    // searchResults.classList.remove("d-none");
 });
 
 //Submit button for the "Create issue" form
 submitBtn.addEventListener("click", (e) => {
-    debugger
     e.preventDefault();
-
+    debugger
     const projects = document.getElementById("selection0").value;
     const issueType = document.getElementById("selection1").value;
     const organization = document.getElementById("selection2").value;
@@ -374,55 +355,57 @@ submitBtn.addEventListener("click", (e) => {
     const fixVersion = document.getElementById("fix_version").value;
     const assignee = document.getElementById("selection4").value;
     const description = document.getElementById("description").value;
-    console.log(assignee);
 
+    //Checking for empty input fields
     if (summary === "" || description === "" || components === "" || affectsVersion === "" || fixVersion === "") {
         alert("Don't leave empty fields.");
         return;
-    } else {
-
-        let dueDate = new Date(date.value);
-        let date1 = formatDate(dueDate, ".");
-        console.log(date1);
-        let createDate = new Date();
-        let date2 = formatDate(createDate, "/");
-        let id = issuesLength + 1
-
-        issuesData.push({
-            id: id.toString(),
-            project: projects,
-            issue_type: issueType,
-            reporter: loggedUserId,
-            organization: organization,
-            summary: summary,
-            priority: priority,
-            dueDate: date1,
-            component: components,
-            affectedVersion: affectsVersion,
-            fixVersion: fixVersion,
-            assignee: Number(assignee),
-            description: description,
-            createDate: date2,
-            comments: [],
-            status: "open",
-            watchers: [loggedUserId],
-        });
-
-
-        projectsData[projects - 1].issues.push(id.toString());
-        document.getElementById("reset").click();
-        localStorage.setItem("projects", JSON.stringify(projectsData));
-        localStorage.setItem("issues", JSON.stringify(issuesData));
-        // console.log(issuesData);
-
-        // console.log(JSON.parse(localStorage.getItem("projects")));
-        console.log(JSON.parse(localStorage.getItem("issues")));
-        document.getElementById("projects").innerHTML = "";
-        document.getElementsByClassName("g-second")[0].innerHTML = "";
-        document.getElementsByClassName("g-third")[0].innerHTML = "";
-        loadingMenus();
-        gGetData();
     }
+
+    //Check for the dropdown menus, if there's any "empty selection"
+    if (projects === "Empty" || issueType === "Empty" || organization === "Empty" || priority === "Empty" || assignee === "Empty" || date.value === "") {
+        alert("Don't leave non-selected dropdown menus");
+        return;
+    }
+
+    let dueDate = new Date(date.value);
+    let date1 = formatDate(dueDate, ".");
+    let createDate = new Date();
+    let date2 = formatDate(createDate, "/");
+    let id = issuesLength + 1
+
+    issuesData.push({
+        id: id.toString(),
+        project: projects,
+        issue_type: issueType,
+        reporter: loggedUserId,
+        organization: organization,
+        summary: summary,
+        priority: priority,
+        dueDate: date1,
+        component: components,
+        affectedVersion: affectsVersion,
+        fixVersion: fixVersion,
+        assignee: Number(assignee),
+        description: description,
+        createDate: date2,
+        comments: [],
+        status: "open",
+        watchers: [loggedUserId],
+    });
+
+    projectsData[projects - 1].issues.push(id.toString());
+    usersData[loggedUsersId - 1].assigned_issues.push(id.toString())
+    usersData[loggedUsersId - 1].watched_issues.push(id.toString())
+    document.getElementById("reset").click();
+    localStorage.setItem("projects", JSON.stringify(projectsData));
+    localStorage.setItem("issues", JSON.stringify(issuesData));
+    localStorage.setItem("users", JSON.stringify(usersData));
+    document.getElementById("projects").innerHTML = "";
+    document.getElementsByClassName("g-second")[0].innerHTML = "";
+    document.getElementsByClassName("g-third")[0].innerHTML = "";
+    gGetData();
+    loadingMenus();
 
 });
 
@@ -444,17 +427,14 @@ logoutBtn.addEventListener("click", () => {
     window.location.href = "login.html";
 })
 
+//Search button for the search field
 searchBtn.addEventListener("click", (e) => {
     e.preventDefault();
-
-    //new code
     background.style.filter = "blur(7px)";
-    //end of the new code
     document.getElementById("projectsPage").classList.add("d-none");
     document.getElementById("g-container1").classList.add("d-none");
     document.getElementsByClassName("g-container2")[0].classList.add("d-none");
     searchResults.classList.remove("d-none");
-
     let term = searchField.value.toLowerCase();
 
     if (term === ``) {
@@ -468,13 +448,11 @@ searchBtn.addEventListener("click", (e) => {
     let match1 = projectsData.filter(issue => issue.projectName.toLowerCase().includes(term));
     for (const project of match1) {
         temp1 += `<a href="#"  class="searchResult" projectsId=${project.id}>${project.projectName}</a><br><br>`
-        // temp += `<option value=${issue.id}>${issue.summary}</option>`
     }
 
     let match2 = issuesData.filter(issue => issue.summary.toLowerCase().includes(term));
     for (const issue of match2) {
         temp2 += `<a href="#" class="searchResult" idOfIssue=${issue.id} idOfProject=${issue.project}>${issue.summary}</a><br><br>`
-        // temp += `<option value=${issue.id}>${issue.summary}</option>`
     }
 
     if (temp1 === ``) {
@@ -491,38 +469,25 @@ searchBtn.addEventListener("click", (e) => {
     
 })
 
+//Close button for the search results
 closeSearch.addEventListener("click", () => {
     document.getElementById("g-container1").classList.remove("d-none");
     document.getElementsByClassName("g-container2")[0].classList.add("d-none");
     searchResults.classList.add("d-none");
-
-    //new code
     background.style.filter = "";
-    //end of the new code
 })
 
-
-//TEST 
 //Opens selected project from the dropdown menu
 projectDropDown1.addEventListener("click", (e) => {
     e.preventDefault();
-    console.log(e.target);
-
-    //NEW CODE 02.07.2019 #################################################################################
     document.getElementById("projectsPage").classList.remove("d-none");
     document.getElementById("searchResults").classList.add("d-none");
     document.getElementById("projectsPage").classList.remove("d-none");
     document.getElementById("g-container1").classList.add("d-none");
     document.getElementsByClassName("g-container2")[0].classList.add("d-none");
     background.style.filter = "blur(7px)";
-    let id = e.srcElement.getAttribute("projetsId")
-    // let projectsName = e.target.innerText
-    // document.getElementById("projectsName").innerText = projectsName;
-    // console.log(projectsName)
-    // console.log(id);
+    let id = e.srcElement.getAttribute("projetsId");
     findTheProject(projectsData, id);
-
-    //END CODE 02.07.2019 #################################################################################
     
 })
 
@@ -531,12 +496,11 @@ closeProject.addEventListener("click", () => {
     document.getElementById("projectsPage").classList.add("d-none");
     document.getElementById("g-container1").classList.remove("d-none");
     document.getElementsByClassName("g-container2")[0].classList.add("d-none");
-
     document.getElementById("g-container1").style.display = "";
     background.style.filter = "";
-    // document.getElementById("g-container1").style.display = "";
 })
 
+//Selecting issue from the "Assigned issues" dropdown menu
 issuesDropDown.addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("projectsPage").classList.add("d-none");
@@ -545,8 +509,10 @@ issuesDropDown.addEventListener("click", (e) => {
     document.getElementById("g-container1").classList.add("d-none");
     document.getElementsByClassName("g-container2")[0].classList.remove("d-none");
     populateIssuePage2(e.srcElement.getAttribute("projectId"), e.srcElement.getAttribute("issueId"));
+    
 })
 
+//Selecting issue from the "Watched issues" dropdown menu
 issuesDropDown2.addEventListener("click", (e) => {
     e.preventDefault();
     document.getElementById("projectsPage").classList.add("d-none");
@@ -558,21 +524,26 @@ issuesDropDown2.addEventListener("click", (e) => {
 
 })
 
+//Creates page with details about selected issue
 async function populateIssuePage2(projectId, issueId) {
-    let findIssue = await gDataIssues.filter(issue => issue.project === projectId)
-        .find(issue => issue.id === issueId);
-    let findProject = await gDataProjects.find(project => project.id === projectId);
-    let findUser = await gDataUsers.find(user => user.id === findIssue.assignee);
-    let findReporter = await gDataUsers.find(project => project.id === findIssue.reporter)
-    gPopulateHeaderSection(findIssue, findProject);
-    gPopulateDescriptionSection(findIssue);
-    gPopulatePeopleSection(findReporter, findUser, findIssue, gDataUsers, gDataIssues);
-    gPopulateDescription(findIssue);
-    gPopulateDates(findIssue, findProject);
-    gPopulateCommentArea(findIssue, gDataUsers, gDataIssues);
+    try {
+        let findIssue = await gDataIssues.filter(issue => issue.project === projectId)
+            .find(issue => issue.id === issueId);
+        let findProject = await gDataProjects.find(project => project.id === projectId);
+        let findUser = await gDataUsers.find(user => user.id === findIssue.assignee);
+        let findReporter = await gDataUsers.find(project => project.id === findIssue.reporter)
+
+        gPopulateHeaderSection(findIssue, findProject);
+        gPopulateDescriptionSection(findIssue);
+        gPopulatePeopleSection(findReporter, findUser, findIssue, gDataUsers, gDataIssues);
+        gPopulateDescription(findIssue);
+        gPopulateDates(findIssue, findProject);
+        gPopulateCommentArea(findIssue, gDataUsers, gDataIssues);
+    } catch (error) {
+        throw new Error("Something went wrong");
+    }
 }
 
-//TEST
 //Linking the search results for issue with the info of the subject 
 document.getElementById("resultsIssues").addEventListener("click", (e) => {
     if (e.target.classList.contains("searchResult")) {
@@ -595,6 +566,7 @@ document.getElementById("resultsProjects").addEventListener("click", (e) => {
     }
 });
 
+//Selecting issue from the "Project page"
 document.getElementById("projectsPage").addEventListener("click", (e) => {
     if (e.target.classList.contains("projectIssue")) {
         document.getElementsByClassName("g-container2")[0].innerHTML = ``;
