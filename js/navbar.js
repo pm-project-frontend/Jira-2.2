@@ -43,6 +43,7 @@ let todaysDate = new Date();
 
 isItAdmin()
 
+//Checking if the logged user is admin
 async function isItAdmin() {
     try {
         let check = await localStorage.getItem("adminLogged");
@@ -53,6 +54,7 @@ async function isItAdmin() {
     }
 }
 
+//Displays "Admin Page" in the users dropdown menu, if the logged user is admin
 function showAdminPage(adminLogged){
     if (adminLogged === true) {
         document.getElementById("adminPage").style.display = "block";
@@ -61,6 +63,7 @@ function showAdminPage(adminLogged){
 
 getId();
 
+//Checking who's logged
 async function getId() {
     try {
         let userid = await localStorage.getItem("loggedUser");
@@ -91,6 +94,7 @@ async function loadingMenus() {
     }
 }
 
+//Displays the picture of the logged user in the navbar
 function displayPicture(id){
     document.getElementById("navImg").setAttribute("src", `pictures/${id}.jpg`);
 }
@@ -169,7 +173,7 @@ function displayUsers(data) {
     assigneeDropDown.innerHTML = temp;
 }
 
-//Loading user's dropdown menu from the navigation bar
+//Displaying the name of the logged user
 function fillUsersMenu(data) {
     if(usersMenuLoaded === false) {
         let temp = "";
@@ -187,6 +191,7 @@ function fillUsersMenu(data) {
     }
 }
 
+//Preparing for displaying
 function displayIssues(data, arr) {
     issuesLength = data.length;
     let temp = "";
@@ -393,11 +398,14 @@ submitBtn.addEventListener("click", (e) => {
         status: "open",
         watchers: [loggedUserId],
     });
-
+    //Adding issue to the related project
     projectsData[projects - 1].issues.push(id.toString());
+    //Adding the issue into assigned issues of the creator
     usersData[loggedUsersId - 1].assigned_issues.push(id.toString())
+    //Adding the issue into watched issues of the creator
     usersData[loggedUsersId - 1].watched_issues.push(id.toString())
     document.getElementById("reset").click();
+    //Updating the local storage
     localStorage.setItem("projects", JSON.stringify(projectsData));
     localStorage.setItem("issues", JSON.stringify(issuesData));
     localStorage.setItem("users", JSON.stringify(usersData));
@@ -444,12 +452,12 @@ searchBtn.addEventListener("click", (e) => {
     let temp1 = ``;
     let temp2 = ``;
     console.log(term);
-
+    //Searching for projects related to the search term
     let match1 = projectsData.filter(issue => issue.projectName.toLowerCase().includes(term));
     for (const project of match1) {
         temp1 += `<a href="#"  class="searchResult" projectsId=${project.id}>${project.projectName}</a><br><br>`
     }
-
+    //Searching for issues related to the search term
     let match2 = issuesData.filter(issue => issue.summary.toLowerCase().includes(term));
     for (const issue of match2) {
         temp2 += `<a href="#" class="searchResult" idOfIssue=${issue.id} idOfProject=${issue.project}>${issue.summary}</a><br><br>`

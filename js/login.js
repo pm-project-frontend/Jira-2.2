@@ -1,5 +1,4 @@
 var btnLogIn = document.getElementById("btnLogIn");
-
 // let adminLogged = false;
 //Successfully logged user
 let LoggedUserId;
@@ -14,9 +13,18 @@ let userAttempting;
 let userAttemptingId;
 let attempts = 0;
 
-//Grabbing data from the jsons
-importJsons();
+checkUp();
 
+//Checks if local storage is loaded with basic data
+function checkUp() {
+  if (localStorage.getItem("users") === null) {
+    importJsons();
+  } else {
+    loadLocalStorage();
+  }
+}
+
+//Grabbing data from the jsons
 async function importJsons() {
   try {
     let users = await fetch("https://raw.githubusercontent.com/pm-project-frontend/jsons/master/users.json");
@@ -35,13 +43,17 @@ async function importJsons() {
 }
 
 //Loading data into local storage
-function loadLocalStorage() {
-  let lsUsers = localStorage.getItem("users");
-  localStorageUsers = JSON.parse(lsUsers);
-  let lsProjects = localStorage.getItem("projects");
-  localStorageProjects = JSON.parse(lsProjects);
-  let lsIssues = localStorage.getItem("issues");
-  localStorageIssues = JSON.parse(lsIssues);
+async function loadLocalStorage() {
+  try {
+    let lsUsers = await localStorage.getItem("users");
+    let lsProjects = await localStorage.getItem("projects");
+    let lsIssues = await localStorage.getItem("issues");
+    localStorageUsers = JSON.parse(lsUsers);
+    localStorageProjects = JSON.parse(lsProjects);
+    localStorageIssues = JSON.parse(lsIssues);
+  } catch (error) {
+    throw new Error("Something went wrong.")
+  }
 }
 
 //LogIn button
@@ -82,46 +94,49 @@ function suspendAccount(id) {
 
 //Main check procedure
 function checkLogin(username, password) {
-  debugger
+  //Checking for empty fields
   if (username === "" || password === "") {
     return alert("Don't leave empty fields.")
   }
-
+  //If only the username is correct, goes for further check up, like account status, and number of attempts
   for (const user of localStorageUsers) {
     if (user.userName === username && user.password !== password) {
+      //Registering which user is trying to login
       userAttemptingId = user.id;
+      //Checking if his/her account is suspended
       if (user.status === "suspended") {
         return alert("Your account has been suspended. Contact your administrator.");
       }
-
+      //Checking if the user has less than three consecutive unsuccessful attempts
       if (user.userName === userAttempting && attempts !== 2) {
         attempts++;
         return alert("Something went wrong, check your username/password.");
       }
-
+      //Suspension after three consecutive unsuccessful attempts
       if (user.userName === userAttempting && attempts === 2) {
         return suspendAccount(userAttemptingId);
       }
     }
-
+    //If the username nad password are correct
     if (user.userName === username && user.password === password) {
       let loginIsOk = true;
       userAttemptingId = user.id;
+      //Checking if the account is suspended
       if (user.status === "suspended") {
         return alert("Your account has been suspended. Contact your administrator.");
       }
-
+      //Checking if the user is admin
       if (loginIsOk && user.role === "admin") {
         adminLogged = true;
         localStorage.setItem("adminLogged", adminLogged);
         return loginPassed("admin.html", userAttemptingId);
       }
-
+      //Checking if it's non-admin account
       if (loginIsOk && user.role === "user") {
         return loginPassed("main.html", userAttemptingId);
       }
     }
   }
-
+  //Shows up if we have attempt from non-registered user
   alert("There's no such user.")
 }
