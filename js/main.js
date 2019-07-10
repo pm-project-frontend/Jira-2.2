@@ -252,6 +252,7 @@ function assigneToMe(user,issue,findUser,issues){
         updateUsers(assigneUser,user,indexOfLoggedUser);
         updateIssue(issue,issues,indexOfIssue);
     }
+	loadingMenus();
 }
 //#endregion
 //#region update issue method
