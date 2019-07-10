@@ -15,7 +15,6 @@ let gInputs = {
 //#endregion
 gInputs.gContainerTwo.style.display = "block";
 //#region populate project div 
-
 gGetData();
 
 function gPopulateStaticProjectPart(element){
@@ -67,6 +66,7 @@ function gGenerateTable1(data,users){
     if(findUser.watched_issues.length !== 0){
         for(var issue of findUser.watched_issues){
             for(let weth of data){
+                console.log(weth.id)
                 if(weth.id === issue){
                     gPopulateIssuesOneRow(gInputs.gSecondDiv,weth);
                 }
@@ -151,8 +151,10 @@ function gPopulateDescriptionSection(findIssue){
 //#endregion
 //#region populate people table
 function gPopulatePeopleSection(findReporter,findUser,findIssue,user,issues){
+    console.log(findIssue.id);
     //user who is loged 
     let assigneUser = user.find(userId => userId.id === loggedUserId);
+    console.log(assigneUser.watched_issues)
     //find out if the logged user watch this issue
     let watch = assigneUser.watched_issues.includes(findIssue.id);
     let check = assigneUser.assigned_issues.includes(findIssue.id);
@@ -161,30 +163,35 @@ function gPopulatePeopleSection(findReporter,findUser,findIssue,user,issues){
     let watchedId;
     //user who is assigne in the moment when logged user go to the iisue page
     let assignedUser = findUser.firstName + " " +  findUser.lastName;
-    if(watch && check){
+    if(watch === true && check === true){
         assigne = "";
         watched = "Stop watching this issue";
         watchedId = "stop-watch";
         populateAssigneAndWatchedTable(assignedUser,findReporter,assigne,watched,watchedId);
+        console.log(watch);
     }
-    else if((!watch) && check){
+    else if(watch === false && check === true){
         assigne = "";
         watched = "Start watch this issue";
         watchedId = "start-watch";
         populateAssigneAndWatchedTable(assignedUser,findReporter,assigne,watched,watchedId);
-    }else if(!watch && !check){
+        console.log(watch);
+    }else if(watch === false && check === false){
         assigne = "Assigne to me";
         watched = "Start watch this issue";
         watchedId = "start-watch";
         populateAssigneAndWatchedTable(assignedUser,findReporter,assigne,watched,watchedId);
+        console.log(watch);
     }else{
         assigne = "Assigne to me";
         watched = "Stop watching this issue";
         watchedId = "stop-watch";
         populateAssigneAndWatchedTable(assignedUser,findReporter,assigne,watched,watchedId);
+        console.log(watch);
     }
    
     gInputs.gContainerTwo.addEventListener("click",function(e){
+        console.log(e.target.id);
         if(e.target.id === "assigne"){
             assigneToMe(user,findIssue,findUser,issues);
             document.getElementById("assigne").disabled = true;
@@ -195,19 +202,23 @@ function gPopulatePeopleSection(findReporter,findUser,findIssue,user,issues){
             <i class="fas fa-check-double"></i> ${assignedUser}
             `;
         }else if(e.target.id === "stop-watch"){
-            stopWatchingIssue(user,findIssue,issues);
-            document.getElementById("stop-watch").id = "start-watch";
-            document.getElementById("start-watch").textContent = "Start watch this issue";
+                document.getElementById("stop-watch").id = "start-watch";
+                document.getElementById("start-watch").textContent = "Start watch this issue";
+                stopWatchingIssue(user,findIssue,issues);
+                console.log(e.target.id);
         }else if(e.target.id === "start-watch"){
-            startWatchIssue(user,findIssue,issues);
             document.getElementById("start-watch").id = "stop-watch";
             document.getElementById("stop-watch").textContent = "Stop watching this issue";
+            startWatchIssue(user,findIssue,issues);
+            console.log(e.target.id);
         }
 
         loadingMenus();
+
     });
 };
 //#endregion
+
 //#region populate table with assigne and watch
 function populateAssigneAndWatchedTable(assignedUser,findReporter,assigne,watched,watchedId){
     gInputs.gContainerTwo.innerHTML +=
@@ -227,7 +238,7 @@ function populateAssigneAndWatchedTable(assignedUser,findReporter,assigne,watche
         </tr>
         <tr>
             <td>Watchers:</td>
-            <td id="watch"> <a class="g-link" id="${watchedId}"> ${watched}</a></td>
+            <td> <a class="g-link" id=${watchedId}> ${watched}</a></td>
         </tr>
         </table>
     ` 
@@ -239,8 +250,8 @@ function assigneToMe(user,issue,findUser,issues){
     //find index of issue in  the user assignedIssue array who was assigned 
     let index = findUser.assigned_issues.indexOf(issue.id);
     //find index of user who was assigned
-    let indexOfExAssignedUser = user.indexOf(findUser);
-    let indexOfLoggedUser = user.indexOf(assigneUser);
+    let indexOfExAssignedUser = user.findIndex(x => x.id === findUser.id);
+    let indexOfLoggedUser = user.findIndex(x => x.id === assigneUser.id);
     let indexOfIssue = issues.findIndex(x => x.id === issue.id);
     console.log(indexOfIssue)
     //find loged user
@@ -252,12 +263,13 @@ function assigneToMe(user,issue,findUser,issues){
         updateUsers(assigneUser,user,indexOfLoggedUser);
         updateIssue(issue,issues,indexOfIssue);
     }
-	loadingMenus();
+
+    loadingMenus();
 }
 //#endregion
 //#region update issue method
 function updateIssue(issue,issues,indexOfIssue){
-    let updateIssue = ({
+    let updateIssue = {
         "id": issue.id,
         "project": issue.project,
         "issue_type": issue.issue_type,
@@ -276,14 +288,14 @@ function updateIssue(issue,issues,indexOfIssue){
         "fixVersion": issue.fixVersion,
         "status": issue.status,
         "watchers": issue.watchers
-    });
+    };
     issues.splice(indexOfIssue,1,updateIssue);
     localStorage.setItem("issues", JSON.stringify(issues));
 }
 //#endregion
 //#region updateUsers method
 function updateUsers(findUser,user,indexOfExAssignedUser){
-    let updateExAssignedUser = ({
+    let updateExAssignedUser = {
         "id": findUser.id,
         "firstName": findUser.firstName,
         "lastName": findUser.lastName,
@@ -296,7 +308,7 @@ function updateUsers(findUser,user,indexOfExAssignedUser){
         "status": findUser.status,
         "assigned_issues": findUser.assigned_issues,
         "watched_issues": findUser.watched_issues
-    });
+    };
     user.splice(indexOfExAssignedUser,1,updateExAssignedUser);
     localStorage.setItem("users", JSON.stringify(user));
 }
@@ -305,40 +317,33 @@ function updateUsers(findUser,user,indexOfExAssignedUser){
 function stopWatchingIssue(user,issue,issues){
     //find logged user
     let assigneUser = user.find(userId => userId.id === loggedUserId);
-    let indexOfLoggedUser = user.indexOf(assigneUser);
+    //find index of logged user
+    let indexOfLoggedUser = user.findIndex(x => x.id ===assigneUser.id);
     let indexOfIssue = issues.findIndex(x => x.id === issue.id);
     //find index of watched issue
-    let index = assigneUser.watched_issues.indexOf(issue.id);
+    let index = assigneUser.watched_issues.findIndex(x => x === issue.id);
     //find index of user in array of watched issue
-    let indexOfWatcher = issue.watchers.indexOf(assigneUser.id);
-    console.log(indexOfIssue);
+    let indexOfWatcher = issue.watchers.findIndex(x => x === assigneUser.id);
     if(assigneUser.watched_issues.includes(issue.id)){
         assigneUser.watched_issues.splice(index,1);
         issue.watchers.splice(indexOfWatcher,1);
-        console.log(assigneUser.watched_issues);
-        console.log(issue.watchers)
         updateUsers(assigneUser,user,indexOfLoggedUser);
-        updateIssue(issue,issues,indexOfIssue)
+        updateIssue(issue,issues,indexOfIssue);
     }
 }
 //#endregion
 //#region start watch method
 function startWatchIssue(user,issue,issues){
-    
-    console.log(issue)
     //find logged user
     let loggedUser = user.find(x => x.id === loggedUserId);
     //find index of logged user 
-    let index = user.indexOf(loggedUser);
+    let index = user.findIndex(x => x.id === loggedUser.id);
     //find index of issue
     let indexOfIssue = issues.findIndex(x => x.id === issue.id);
-    console.log(indexOfIssue);
     if(!(loggedUser.watched_issues.includes(issue.id))){
         //push issue in the watched issues array
         loggedUser.watched_issues.push(issue.id);
         issue.watchers.push(loggedUserId);
-        console.log(loggedUser.watched_issues)
-        console.log(issue.watchers)
         updateUsers(loggedUser,user,index);
         updateIssue(issue,issues,indexOfIssue);
     }
@@ -408,7 +413,7 @@ function gPopulateCommentArea(findIssue,findUser,issues){
             let findUserId = findUser.filter(id => id.id === comment.userID);
             for(var id of findUserId){
                 gTextArea.innerHTML += `
-                <p class="g-paragraph"><i class="fas fa-user"></i> <span class="g-comments-text"><span class="g-full-name"> ${id.firstName} ${id.lastName} :</span> ${comment.c}</span></p>
+                <p class="g-paragraph"><img src="${id.image}"/> <span class="g-comments-text"><span class="g-full-name"> ${id.firstName} ${id.lastName} :</span> ${comment.c}</span></p>
                 `
             }
         }
@@ -421,7 +426,7 @@ function gPopulateCommentArea(findIssue,findUser,issues){
             <p class="g-paragraph"><img src="${user.image}"/> <span class="g-comments-text"><span class="g-full-name">${user.firstName} ${user.lastName}:</span> ${gComment}</span></p>
             `
             findCommentator.push({userID: user.id,c: gComment});
-            let updateIssue = ({
+            let updateIssue = {
                 "affectedVersion": findIssue.affectedVersion,
                 "assignee": findIssue.assignee,
                 "comments": findCommentator,
@@ -439,7 +444,7 @@ function gPopulateCommentArea(findIssue,findUser,issues){
                 "status": findIssue.status,
                 "summary": findIssue.summary,
                 "watchers": findIssue.watchers
-            });
+            };
             issues.splice(index,1,updateIssue);
             localStorage.setItem("issues", JSON.stringify(issues));
         }
@@ -475,11 +480,8 @@ function populateIssuePage(e){
         .find(issue => issue.id === e.title);
         console.log(findIssue);
         let findProject = gDataProjects.find(project => project.id === e.id);
-        console.log(findProject);
         let findUser = gDataUsers.find(user => user.id === findIssue.assignee);
-        console.log(findUser);
         let findReporter = gDataUsers.find(project => project.id === findIssue.reporter)
-        console.log(findReporter)
         gPopulateHeaderSection(findIssue,findProject);
         gPopulateDescriptionSection(findIssue);
         gPopulatePeopleSection(findReporter,findUser,findIssue,gDataUsers,gDataIssues);
@@ -494,7 +496,6 @@ async function gGetData() {
         gDataUsers = JSON.parse(localStorage.getItem("users"));
         gDataProjects = JSON.parse(localStorage.getItem("projects"));
         gDataIssues = JSON.parse(localStorage.getItem("issues"));
-        console.log(gDataIssues)
         gGenerateTable(gDataProjects);
         gGenerateTable1(gDataIssues,gDataUsers);
         gPopulateStaticAssignePart(gInputs.gSecondDiv,gDataIssues,gDataUsers);
