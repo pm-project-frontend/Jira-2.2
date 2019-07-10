@@ -1,5 +1,5 @@
 var btnLogIn = document.getElementById("btnLogIn");
-// let adminLogged = false;
+let adminLogged = false;
 //Successfully logged user
 let LoggedUserId;
 
