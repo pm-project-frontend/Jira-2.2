@@ -204,6 +204,10 @@ function displayIssues(data, arr) {
 
     }
 
+    if (temp === "") {
+        temp = `<a href="#" class="no-issue" style="pointer-events: none;">No issues</a>`
+    }
+
     whichDropDownIssuesMenu(arr, temp);
 }
 
@@ -349,7 +353,6 @@ cancelBtn.addEventListener("click", () => {
 //Submit button for the "Create issue" form
 submitBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    debugger
     const projects = document.getElementById("selection0").value;
     const issueType = document.getElementById("selection1").value;
     const organization = document.getElementById("selection2").value;
@@ -487,7 +490,6 @@ closeSearch.addEventListener("click", () => {
 
 //Opens selected project from the dropdown menu
 projectDropDown1.addEventListener("click", (e) => {
-    e.preventDefault();
     document.getElementById("projectsPage").classList.remove("d-none");
     document.getElementById("searchResults").classList.add("d-none");
     document.getElementById("projectsPage").classList.remove("d-none");
@@ -510,25 +512,31 @@ closeProject.addEventListener("click", () => {
 
 //Selecting issue from the "Assigned issues" dropdown menu
 issuesDropDown.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("projectsPage").classList.add("d-none");
-    document.getElementById("searchResults").classList.add("d-none");
-    document.getElementsByClassName("g-container2")[0].innerHTML = "";
-    document.getElementById("g-container1").classList.add("d-none");
-    document.getElementsByClassName("g-container2")[0].classList.remove("d-none");
-    populateIssuePage2(e.srcElement.getAttribute("projectId"), e.srcElement.getAttribute("issueId"));
+    if (e.target.innerText === "No issues") {
+        return;
+    } else {
+        document.getElementById("projectsPage").classList.add("d-none");
+        document.getElementById("searchResults").classList.add("d-none");
+        document.getElementsByClassName("g-container2")[0].innerHTML = "";
+        document.getElementById("g-container1").classList.add("d-none");
+        document.getElementsByClassName("g-container2")[0].classList.remove("d-none");
+        populateIssuePage2(e.srcElement.getAttribute("projectId"), e.srcElement.getAttribute("issueId"));
+    }
     
 })
 
 //Selecting issue from the "Watched issues" dropdown menu
 issuesDropDown2.addEventListener("click", (e) => {
-    e.preventDefault();
-    document.getElementById("projectsPage").classList.add("d-none");
-    document.getElementById("searchResults").classList.add("d-none");
-    document.getElementsByClassName("g-container2")[0].innerHTML = "";
-    document.getElementById("g-container1").classList.add("d-none");
-    document.getElementsByClassName("g-container2")[0].classList.remove("d-none");
-    populateIssuePage2(e.srcElement.getAttribute("projectId"), e.srcElement.getAttribute("issueId"));
+    if (e.target.innerText === "No issues") {
+        return;
+    } else {
+        document.getElementById("projectsPage").classList.add("d-none");
+        document.getElementById("searchResults").classList.add("d-none");
+        document.getElementsByClassName("g-container2")[0].innerHTML = "";
+        document.getElementById("g-container1").classList.add("d-none");
+        document.getElementsByClassName("g-container2")[0].classList.remove("d-none");
+        populateIssuePage2(e.srcElement.getAttribute("projectId"), e.srcElement.getAttribute("issueId"));
+    }
 
 })
 

@@ -7,7 +7,6 @@ const submitBtn = document.getElementById("submit-btn");
 getUsersInfo();
 
 async function getUsersInfo(){
-    debugger
     let id = await JSON.parse(localStorage.getItem("editUser"));
     let users = await JSON.parse(localStorage.getItem("users"));
     user = await users.find(user => user.id === Number(id));
@@ -101,19 +100,7 @@ submitBtn.addEventListener("click", () => {
     checkEditing();
 })
 
-// window.addEventListener("keyup", (e) => {
-//     debugger
-//     if (e.keyCode === 13) {
-//         checkEditing();
-//     }
-// })
-
 backBtn.addEventListener("click", (e) => {
-    // if(e.keyCode === 13){
-    //     return;
-    // }
-
-
     e.preventDefault();
     document.getElementById("pic-file").classList.add("d-none")
     window.location.href = "admin.html";

@@ -108,12 +108,12 @@ function checkLogin(username, password) {
         return alert("Your account has been suspended. Contact your administrator.");
       }
       //Checking if the user has less than three consecutive unsuccessful attempts
-      if (user.userName === userAttempting && attempts !== 2) {
+      if (user.userName === userAttempting && attempts < 2) {
         attempts++;
         return alert("Something went wrong, check your username/password.");
       }
       //Suspension after three consecutive unsuccessful attempts
-      if (user.userName === userAttempting && attempts === 2) {
+      if (user.userName === userAttempting && attempts >= 2) {
         return suspendAccount(userAttemptingId);
       }
     }

@@ -101,19 +101,7 @@ submitBtn.addEventListener("click", () => {
     checkEditing();
 })
 
-// window.addEventListener("keyup", (e) => {
-//     debugger
-//     if (e.keyCode === 13) {
-//         checkEditing();
-//     }
-// })
-
 backBtn.addEventListener("click", (e) => {
-    // if(e.keyCode === 13){
-    //     return;
-    // }
-
-
     e.preventDefault();
     document.getElementById("pic-file").classList.add("d-none")
     window.location.href = "main.html";
